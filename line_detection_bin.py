@@ -49,6 +49,22 @@ def bird_eye_view(image):
     warped_img = cv2.warpPerspective(image, M, (IMAGE_W, IMAGE_H)) # Image warping
 
     return warped_img
+def get_angle(lines):
+    """
+    Compute angle of vertical lines.
+    """
+    # horizontal_threshold = 50
+    # horizontal_lines = [line for line in lines if abs(line[0][0] - line[0][2])>horizontal_threshold]
+    vertical_threshold = 50
+    vertical_lines = [line for line in lines if abs(line[0][1] - line[0][3])>vertical_threshold]
+    res = 0
+    for line in vertical_lines:
+        x1, y1, x2, y2 = line[0]
+        #get alpha angle
+        alpha=abs(np.arctan2(y2-y1, x2-x1))
+        res+=alpha/np.pi*180
+    res = res/len(vertical_lines)
+    return res
 def detect_lanes(image):
     global total_lines
     # Convert to grayscale
@@ -100,7 +116,7 @@ def detect_lanes(image):
             else:
                 cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green
 
-    return image
+    return image, get_angle(lines)
 
 total_lines = 0
 # Open the video file
