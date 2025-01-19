@@ -56,10 +56,10 @@ def get_angle(lines):
     # horizontal_threshold = 50
     # horizontal_lines = [line for line in lines if abs(line[0][0] - line[0][2])>horizontal_threshold]
     vertical_threshold = 50
-    vertical_lines = [line for line in lines if abs(line[0][1] - line[0][3])>vertical_threshold]
+    vertical_lines = [line for line in lines if abs(line[1] - line[3])>vertical_threshold]
     res = 0
     for line in vertical_lines:
-        x1, y1, x2, y2 = line[0]
+        x1, y1, x2, y2 = line
         #get alpha angle
         alpha=abs(np.arctan2(y2-y1, x2-x1))
         res+=alpha/np.pi*180
@@ -120,9 +120,10 @@ def detect_lanes(image):
 
 total_lines = 0
 # Open the video file
-video_path = "./bfmc2020_online_3.avi"  # Replace with your video file path
+vid_name = 'bfmc2020_online_3'
+video_path = f"./Records/{vid_name}.avi"  # Replace with your video file path
 cap = cv2.VideoCapture(video_path)
-
+print(video_path)
 if not cap.isOpened():
     print("Error opening video file")
     exit()
@@ -134,7 +135,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 # Create a VideoWriter object
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('output_2.avi', fourcc, fps, (width, height))
+out = cv2.VideoWriter(f'./output/{vid_name}.avi', fourcc, fps, (width, height))
 
 # Get the total number of frames in the video
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -146,7 +147,7 @@ for _ in tqdm(range(total_frames), desc="Processing frames"):
         break
 
     # Process the frame to detect lanes
-    processed_frame = detect_lanes(frame)
+    processed_frame,angle = detect_lanes(frame)
 
     # Write the processed frame to the output video
     out.write(processed_frame)
