@@ -35,8 +35,7 @@ def non_max_suppression(lines, threshold):
 import cv2
 from tqdm import tqdm
 def bird_eye_view(image):
-    IMAGE_H = 1232
-    IMAGE_W = 1640
+    IMAGE_H,IMAGE_W = image.shape[:2]
 
     src = np.float32([[150, IMAGE_H], [1500, IMAGE_H], [600, 650], [1150, 650]])
     dst = np.float32([[600, IMAGE_H], [1150, IMAGE_H], [600, 650], [1150, 650]])
@@ -149,17 +148,11 @@ total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 result = []
 for _ in tqdm(range(total_frames), desc="Processing frames"):
     ret, frame = cap.read()
-    # cv2.imshow('frame', frame)
-    # cv2.waitKey(1)
     if not ret:
         break
 
     # Process the frame to detect lanes
     processed_frame,angle = detect_lanes(frame)
-    # result.append(processed_frame)
-    # cv2.imshow('frame', processed_frame)
-    # cv2.waitKey(1)
-    # Write the processed frame to the output video
     out.write(processed_frame)
 # Release `the video capture and writer objects
 print("Average lines detected:", total_lines//total_frames)
