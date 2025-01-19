@@ -56,13 +56,18 @@ def get_angle(lines):
     # horizontal_threshold = 50
     # horizontal_lines = [line for line in lines if abs(line[0][0] - line[0][2])>horizontal_threshold]
     vertical_threshold = 50
+    if lines is None:
+        return 0
     vertical_lines = [line for line in lines if abs(line[1] - line[3])>vertical_threshold]
+    if len(vertical_lines) == 0:
+        return 0
     res = 0
     for line in vertical_lines:
         x1, y1, x2, y2 = line
         #get alpha angle
         alpha=abs(np.arctan2(y2-y1, x2-x1))
         res+=alpha/np.pi*180
+
     res = res/len(vertical_lines)
     return res
 def detect_lanes(image):
@@ -120,7 +125,7 @@ def detect_lanes(image):
 
 total_lines = 0
 # Open the video file
-vid_name = 'bfmc2020_online_3'
+vid_name = 'test'
 video_path = f"./Records/{vid_name}.avi"  # Replace with your video file path
 cap = cv2.VideoCapture(video_path)
 print(video_path)
@@ -134,24 +139,30 @@ width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 # Create a VideoWriter object
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter(f'./output/{vid_name}.avi', fourcc, fps, (width, height))
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+out = cv2.VideoWriter(f'./output/{vid_name}.mp4', fourcc, fps, (width, height))
 
 # Get the total number of frames in the video
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 # Process each frame with a progress bar
+result = []
 for _ in tqdm(range(total_frames), desc="Processing frames"):
     ret, frame = cap.read()
+    # cv2.imshow('frame', frame)
+    # cv2.waitKey(1)
     if not ret:
         break
 
     # Process the frame to detect lanes
     processed_frame,angle = detect_lanes(frame)
-
+    # result.append(processed_frame)
+    # cv2.imshow('frame', processed_frame)
+    # cv2.waitKey(1)
     # Write the processed frame to the output video
     out.write(processed_frame)
 # Release `the video capture and writer objects
 print("Average lines detected:", total_lines//total_frames)
+print()
 cap.release()
 out.release()
